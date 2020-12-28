@@ -1,0 +1,38 @@
+﻿<Window x:Class="Downloader.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Downloader"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="720" Width="1280">
+    <Grid>
+        <Vlc:VlcControl xmlns:Vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf" x:Name="MyControl" Margin="468,60,10,129" />
+        <TextBox x:Name="logTextBox" HorizontalAlignment="Left" Height="46" Margin="468,614,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="794"/>
+        <TreeView x:Name="channelsTree" HorizontalAlignment="Left" Height="600" VerticalAlignment="Top" Width="168" Margin="10,60,0,0" SelectedItemChanged="TreeView_SelectedItemChanged"/>
+        <Menu HorizontalAlignment="Left" Height="31" VerticalAlignment="Top" Width="1252" Margin="10,10,0,0">
+            <Button/>
+            <Button/>
+        </Menu>
+        <StatusBar HorizontalAlignment="Left" Height="24" Margin="0,665,0,0" VerticalAlignment="Top" Width="1272">
+            <Label x:Name="toolStripStatusLabel1"/>
+        </StatusBar>
+        <ListView x:Name="previewList" HorizontalAlignment="Left" Height="600" VerticalAlignment="Top" Width="330" Margin="183,60,0,0" SelectionChanged="previewList_SelectionChanged" MouseDoubleClick="previewList_MouseDoubleClick" >
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid HorizontalAlignment="Center" VerticalAlignment="Top" Columns="3"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Width="95" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#FFFFE800">
+                        <Image Source="{Binding ImageData}" Width="95" Height="50" HorizontalAlignment="Stretch" VerticalAlignment="Top" OpacityMask="Red" />
+                        <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Background="#FFA2FF00" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+
+    </Grid>
+</Window>
