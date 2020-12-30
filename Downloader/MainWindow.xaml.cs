@@ -63,7 +63,7 @@ namespace Downloader
         {
             if (!Directory.Exists(currentDirectory))
             {
-                MessageBox.Show("Wrong path");
+                MessageBox.Show("Неверный путь");
             }
             currentTreeDirectory = e.NewValue.ToString();
             string path = currentDirectory + "\\" + e.NewValue + "\\";
@@ -71,7 +71,7 @@ namespace Downloader
             IEnumerable<FileInfo> fileInfos = DirUtil.EnumerateFiles(path);
             if (fileInfos == null)
             {
-                MessageBox.Show("Пустой files");
+                MessageBox.Show("Папка пуста");
             }
             else
             {
@@ -128,13 +128,13 @@ namespace Downloader
         {
             if (!Directory.Exists(currentDirectory))
             {
-                MessageBox.Show("Wrong path");
+                MessageBox.Show("Неверный путь");
             }
             this.channelsTree.Items.Clear();
             IEnumerable<DirectoryInfo> directoryInfos = DirUtil.EnumerateDir(currentDirectory);
             if (directoryInfos == null)
             {
-                MessageBox.Show("Пустой dir");
+                MessageBox.Show("Пустая папка");
             }
             else
             {
