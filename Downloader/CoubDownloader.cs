@@ -26,7 +26,6 @@ namespace Downloader
             }))
             {
                 form.UpdateLog("Start PROCESS");
-                //form.UpdateLog();
                 using (StreamReader standardOutput = process.StandardOutput)
                 {
                     end = standardOutput.ReadToEnd();

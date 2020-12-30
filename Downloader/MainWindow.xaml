@@ -15,6 +15,7 @@
             <Button x:Name="downloadButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="209,3,0,0" Content="Скачать из буфера" Width="150" Height="25" FontSize="16" Click="downloadButton_Click"/>
             <CheckBox x:Name="repeat" Content="Повтор" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="500,8,30,0" FontSize="16" Checked="repeat_Checked" Unchecked="repeat_Unchecked"/>
             <CheckBox x:Name="autoplay" Content="Автовоспроизведение" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="362,8,120,0" FontSize="16" Checked="autoplay_Checked" Unchecked="autoplay_Unchecked"/>
+            <CheckBox x:Name="playRandom" Content="Случайное воспроизведение" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="362,8,333,0" FontSize="16" Checked="playRandom_Checked" Unchecked="playRandom_Unchecked"/>
         </Grid>
         <StatusBar HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="24" Margin="0,0,0,0" Background="#FF35ACFF" Foreground="White">
             <Label x:Name="toolStripStatusLabel1" Padding="0,0,0,0" Foreground="White"/>

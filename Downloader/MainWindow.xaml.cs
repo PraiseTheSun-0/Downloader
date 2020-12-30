@@ -27,6 +27,7 @@ namespace Downloader
         string currentTreeDirectory;
         bool autoplayEnabled = false;
         bool repeatEnabled = false;
+        bool randomEnabled = false;
         VideoData Video;
         public MainWindow()
         {
@@ -44,18 +45,6 @@ namespace Downloader
             this.MyControl.SourceProvider.MediaPlayer.EndReached += new EventHandler<VlcMediaPlayerEndReachedEventArgs>(this.vlcControl1_EndReached);
 
             updateTree();
-
-            //this.MyControl.SourceProvider.MediaPlayer.Play(new FileInfo(@"D:\Nikita\test.mp4"));
-
-            //CoubDownloader downloader = new CoubDownloader();
-            //Task task1 = new Task((Action)(() => this.IsDownloadInProgress = true));
-            //Task<string> task2 = new Task<string>((Func<string>)(() => downloader.Download(@"https://coub.com/view/2h3pe6", this,
-            //    @"C:\nikita\test\")));
-            //task2.ContinueWith((Action<Task<string>>)(td => this.UpdateLog(td.Result)));
-            //task2.Start();
-
-            //FFmpegParser ffmpegParser = new FFmpegParser();
-            //ffmpegParser.GetThumbnail(@"C:\nikita\test\2h3pe6.mp4", @"C:\nikita\test\124.jpg", "640x480");
         }
 
         public void UpdateLog(string message)
@@ -90,10 +79,6 @@ namespace Downloader
                 //this.previewList.Dispatcher.BeginInvoke();
                 this.previewList.ItemsSource = null;
                 this.previewList.Items.Clear();
-                //ImageList imageList = new ImageList();
-                //imageList.ImageSize = new Size(64, 64);
-                //imageList.ColorDepth = ColorDepth.Depth32Bit;
-                //this.previewList. = imageList;
                 if (!Directory.Exists(path + "images"))
                     Directory.CreateDirectory(path + "images");
                 var Data = new List<VideoData>();
@@ -107,13 +92,10 @@ namespace Downloader
                     string pathUri = path + str;
                     var uri = new System.Uri(pathUri);
                     BitmapImage bitmap = new BitmapImage(uri);
-                    //    imageList.Images.Add(fileInfo.Name, (Image)bitmap);
-                    //this.previewList.Items.Add(fileInfo.Name);
                     Video.ImageData = bitmap;
                     Data.Add(Video);
-                    //    this.toolStripStatusLabel1.Text = fileInfo.Name;
+                    this.toolStripStatusLabel1.Content = fileInfo.Name;
                 }
-                //this.previewList.EndUpdate();
                 this.previewList.ItemsSource = Data;
                 this.toolStripStatusLabel1.Content = "Фреймы загружены";
             }
@@ -234,19 +216,38 @@ namespace Downloader
         private void autoplay_Checked(object sender, RoutedEventArgs e)
         {
             this.autoplayEnabled = true;
+            this.repeat.IsChecked = false;
         }
+
         private void autoplay_Unchecked(object sender, RoutedEventArgs e)
         {
             this.autoplayEnabled = false;
         }
+
         private void repeat_Checked(object sender, RoutedEventArgs e)
         {
             this.repeatEnabled = true;
+            this.autoplay.IsChecked = false;
+            this.playRandom.IsChecked = false;
         }
+
         private void repeat_Unchecked(object sender, RoutedEventArgs e)
         {
             this.repeatEnabled = false;
         }
+
+        private void playRandom_Checked(object sender, RoutedEventArgs e)
+        {
+            this.randomEnabled = true;
+            this.autoplay.IsChecked = true;
+            this.repeat.IsChecked = false;
+        }
+
+        private void playRandom_Unchecked(object sender, RoutedEventArgs e)
+        {
+            this.randomEnabled = false;
+        }
+
         private void vlcControl1_EndReached(object sender, VlcMediaPlayerEndReachedEventArgs e)
         {
             this.UpdateLog("End reached\n");
@@ -256,18 +257,27 @@ namespace Downloader
                 {
                     MyControl.SourceProvider.MediaPlayer.Play(currentFiVid);
                 }).Start();
-            }
-            if (autoplayEnabled)
+            } 
+            else if (autoplayEnabled)
             {
-                var id = this.previewList.Items.IndexOf(Video);
                 VideoData nextVideo;
-                if (id + 1 < this.previewList.Items.Count)
+                if (!randomEnabled)
                 {
-                    nextVideo = this.previewList.Items[id + 1] as VideoData;
+                    var id = this.previewList.Items.IndexOf(Video);
+                    if (id + 1 < this.previewList.Items.Count)
+                    {
+                        nextVideo = this.previewList.Items[id + 1] as VideoData;
+                    }
+                    else
+                    {
+                        nextVideo = this.previewList.Items[0] as VideoData;
+                    }
                 }
                 else
                 {
-                    nextVideo = this.previewList.Items[0] as VideoData;
+                    int id = new Random().Next(0, this.previewList.Items.Count - 1);
+                    nextVideo = this.previewList.Items[id] as VideoData;
+                    // TODO: проверка на меньше двух видео
                 }
                 this.currentVid = currentDirectory + "\\" + currentTreeDirectory + "\\" + nextVideo.Title;
                 this.currentFiVid = new FileInfo(this.currentVid);
