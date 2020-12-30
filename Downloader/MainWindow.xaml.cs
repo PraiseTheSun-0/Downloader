@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Vlc.DotNet.Core;
 
 namespace Downloader
 {
@@ -24,6 +25,9 @@ namespace Downloader
         public string currentVid;
         public FileInfo currentFiVid;
         string currentTreeDirectory;
+        bool autoplayEnabled = false;
+        bool repeatEnabled = false;
+        VideoData Video;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,18 +41,10 @@ namespace Downloader
             var options = new string[] { };
 
             this.MyControl.SourceProvider.CreatePlayer(vlcLibDirectory, options);
+            this.MyControl.SourceProvider.MediaPlayer.EndReached += new EventHandler<VlcMediaPlayerEndReachedEventArgs>(this.vlcControl1_EndReached);
 
-            this.channelsTree.Items.Clear();
-            IEnumerable<DirectoryInfo> directoryInfos = DirUtil.EnumerateDir(currentDirectory);
-            if (directoryInfos == null)
-            {
-                int num = (int)MessageBox.Show("Пустой dir");
-            }
-            else
-            {
-                foreach (FileSystemInfo fileSystemInfo in directoryInfos)
-                    this.channelsTree.Items.Add(fileSystemInfo.Name);
-            }
+            updateTree();
+
             //this.MyControl.SourceProvider.MediaPlayer.Play(new FileInfo(@"D:\Nikita\test.mp4"));
 
             //CoubDownloader downloader = new CoubDownloader();
@@ -64,7 +60,7 @@ namespace Downloader
 
         public void UpdateLog(string message)
         {
-            //if (this.logTextBox.)
+            //if (this.logTextBox.Dispatcher.Invoke.)
             this.Dispatcher.Invoke((Delegate)new MainWindow.UpdateLogDelegate(this.UpdateLogItemCallback), (object)message);
             //else
             //    this.UpdateLogItemCallback(message);
@@ -76,19 +72,23 @@ namespace Downloader
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-
+            if (!Directory.Exists(currentDirectory))
+            {
+                MessageBox.Show("Wrong path");
+            }
             currentTreeDirectory = e.NewValue.ToString();
             string path = currentDirectory + "\\" + e.NewValue + "\\";
             FFmpegParser ffmpegParser = new FFmpegParser();
             IEnumerable<FileInfo> fileInfos = DirUtil.EnumerateFiles(path);
             if (fileInfos == null)
             {
-                int num = (int)MessageBox.Show("Пустой files");
+                MessageBox.Show("Пустой files");
             }
             else
             {
                 this.toolStripStatusLabel1.Content = "Начало загрузки фреймов...";
                 //this.previewList.Dispatcher.BeginInvoke();
+                this.previewList.ItemsSource = null;
                 this.previewList.Items.Clear();
                 //ImageList imageList = new ImageList();
                 //imageList.ImageSize = new Size(64, 64);
@@ -104,7 +104,8 @@ namespace Downloader
                     string str = "images\\" + fileInfo.Name + ".jpg";
                     if (!File.Exists(path + str))
                         ffmpegParser.GetThumbnail(path + fileInfo.Name, path + str, "640x480");
-                    var uri = new System.Uri(path + str);
+                    string pathUri = path + str;
+                    var uri = new System.Uri(pathUri);
                     BitmapImage bitmap = new BitmapImage(uri);
                     //    imageList.Images.Add(fileInfo.Name, (Image)bitmap);
                     //this.previewList.Items.Add(fileInfo.Name);
@@ -128,11 +129,153 @@ namespace Downloader
 
         private void previewList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var Video = this.previewList.SelectedItems[0] as VideoData;   
+            this.Video = this.previewList.SelectedItems[0] as VideoData;   
             this.currentVid = currentDirectory + "\\" + currentTreeDirectory + "\\" + Video.Title;
             this.currentFiVid = new FileInfo(this.currentVid);
             this.MyControl.SourceProvider.MediaPlayer.SetMedia(this.currentFiVid);
             this.MyControl.SourceProvider.MediaPlayer.Play();
+        }
+
+        private void pathToDir_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            this.currentDirectory = pathToDir.Text;
+
+        }
+
+        private void updateTree()
+        {
+            if (!Directory.Exists(currentDirectory))
+            {
+                MessageBox.Show("Wrong path");
+            }
+            this.channelsTree.Items.Clear();
+            IEnumerable<DirectoryInfo> directoryInfos = DirUtil.EnumerateDir(currentDirectory);
+            if (directoryInfos == null)
+            {
+                MessageBox.Show("Пустой dir");
+            }
+            else
+            {
+                foreach (FileSystemInfo fileSystemInfo in directoryInfos)
+                    this.channelsTree.Items.Add(fileSystemInfo.Name);
+            }
+        }
+
+        private void pathToDir_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                this.currentDirectory = pathToDir.Text;
+                updateTree();
+            }
+        }
+
+        private void downloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!Directory.Exists(currentDirectory + "\\DOWNLOADS"))
+            {
+                try
+                {
+                    Directory.CreateDirectory(currentDirectory + "\\DOWNLOADS");
+                }
+                catch
+                {
+                    MessageBox.Show("Не удалось создать папку");
+                    return;
+                }
+            }
+            string url = Clipboard.GetText();
+            if (!url.Contains("https://coub.com"))
+            {
+                string checkpath = this.currentDirectory + @"\DOWNLOADS";
+                this.toolStripStatusLabel1.Content = "В ссылке не обнаружен coub.com! [" + url + "]";
+                YoutubeDownloader downloader = new YoutubeDownloader();
+                Task task1 = new Task((Action)(() => this.IsDownloadInProgress = true));
+                Task<string> task2 = new Task<string>((Func<string>)(() => downloader.Download(url, this,
+                    this.currentDirectory + @"\DOWNLOADS")));
+                task2.ContinueWith((Action<Task<string>>)(td => this.UpdateLog(td.Result)));
+                task2.Start();
+            }
+            else
+            {
+                CoubDownloader downloader = new CoubDownloader();
+                Task task1 = new Task((Action)(() => this.IsDownloadInProgress = true));
+                Task<string> task2 = new Task<string>((Func<string>)(() => downloader.Download(url, this, 
+                    this.currentDirectory + @"\DOWNLOADS")));
+                task2.ContinueWith((Action<Task<string>>)(td => this.UpdateLog(td.Result)));
+                task2.Start();
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.MyControl.SourceProvider.MediaPlayer.IsPlaying())
+            {
+                this.MyControl.SourceProvider.MediaPlayer.Pause();
+            }
+            else
+            {
+                this.MyControl.SourceProvider.MediaPlayer.Play();
+            }
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            try 
+            { 
+                this.MyControl.SourceProvider.MediaPlayer.Audio.Volume = Convert.ToInt32(Volume.Value);
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        private void autoplay_Checked(object sender, RoutedEventArgs e)
+        {
+            this.autoplayEnabled = true;
+        }
+        private void autoplay_Unchecked(object sender, RoutedEventArgs e)
+        {
+            this.autoplayEnabled = false;
+        }
+        private void repeat_Checked(object sender, RoutedEventArgs e)
+        {
+            this.repeatEnabled = true;
+        }
+        private void repeat_Unchecked(object sender, RoutedEventArgs e)
+        {
+            this.repeatEnabled = false;
+        }
+        private void vlcControl1_EndReached(object sender, VlcMediaPlayerEndReachedEventArgs e)
+        {
+            this.UpdateLog("End reached\n");
+            if (repeatEnabled)
+            {
+                new System.Threading.Tasks.Task(() =>
+                {
+                    MyControl.SourceProvider.MediaPlayer.Play(currentFiVid);
+                }).Start();
+            }
+            if (autoplayEnabled)
+            {
+                var id = this.previewList.Items.IndexOf(Video);
+                VideoData nextVideo;
+                if (id + 1 < this.previewList.Items.Count)
+                {
+                    nextVideo = this.previewList.Items[id + 1] as VideoData;
+                }
+                else
+                {
+                    nextVideo = this.previewList.Items[0] as VideoData;
+                }
+                this.currentVid = currentDirectory + "\\" + currentTreeDirectory + "\\" + nextVideo.Title;
+                this.currentFiVid = new FileInfo(this.currentVid);
+                new System.Threading.Tasks.Task(() =>
+                {
+                    MyControl.SourceProvider.MediaPlayer.Play(currentFiVid);
+                }).Start();
+            }
         }
     }
 }

@@ -8,6 +8,6 @@ namespace Downloader
 {
     interface IDownloader
     {
-        string Download(string url, MainWindow form, string pathToSave = "#!DOWNLOADS!#");
+        string Download(string url, MainWindow form, string pathToSave);
     }
 }

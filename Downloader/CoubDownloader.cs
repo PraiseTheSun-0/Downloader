@@ -12,12 +12,12 @@ namespace Downloader
     {
         private Process coubDownloader;
 
-        public string Download(string url, MainWindow form, string pathToSave = "#!DOWNLOADS!#")
+        public string Download(string url, MainWindow form, string pathToSave)
         {
             string end;
             using (Process process = Process.Start(new ProcessStartInfo()
             {
-                Arguments = " coub.py " + url + " --path " + pathToSave + " --connections 1 --ext mp4",
+                Arguments = " coub.py " + url + " --path " + $"\"{pathToSave}\"" + " --connections 1 --ext mp4",
                 FileName = "python.exe",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -26,6 +26,7 @@ namespace Downloader
             }))
             {
                 form.UpdateLog("Start PROCESS");
+                //form.UpdateLog();
                 using (StreamReader standardOutput = process.StandardOutput)
                 {
                     end = standardOutput.ReadToEnd();

@@ -10,26 +10,26 @@ namespace Downloader
 {
     public class YoutubeDownloader : IDownloader
     {
-        private Process coubDownloader;
+        private Process youtubeDownloader;
 
-        public string Download(string url, MainWindow form, string pathToSave = "#!DOWNLOADS!#")
+        public string Download(string url, MainWindow form, string pathToSave)
         {
             string end;
             using (Process process = Process.Start(new ProcessStartInfo()
             {
-                Arguments = " coub.py " + url + " --path " + pathToSave + " --connections 1 --ext mp4",
-                FileName = "python.exe",
+                Arguments = $" -o \"{pathToSave}\\%(id)s.%(ext)s\" -f \"bestvideo[height<=?1080][ext=mp4]+bestaudio\" " + url,
+                FileName = "youtube-dl.exe",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
             }))
             {
-                //form.UpdateLog("Start PROCESS");
+                form.UpdateLog("Start PROCESS");
                 using (StreamReader standardOutput = process.StandardOutput)
                 {
                     end = standardOutput.ReadToEnd();
-                    //form.UpdateLog("Process READTOEND END");
+                    form.UpdateLog("Process READTOEND END");
                 }
             }
             return end;

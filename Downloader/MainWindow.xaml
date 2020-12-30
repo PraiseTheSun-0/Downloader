@@ -5,19 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Downloader"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280">
+        Title="MainWindow" Height="720" Width="1480" MinWidth="1054" MinHeight="360">
     <Grid>
-        <Vlc:VlcControl xmlns:Vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf" x:Name="MyControl" Margin="468,60,10,129" />
-        <TextBox x:Name="logTextBox" HorizontalAlignment="Left" Height="46" Margin="468,614,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="794"/>
-        <TreeView x:Name="channelsTree" HorizontalAlignment="Left" Height="600" VerticalAlignment="Top" Width="168" Margin="10,60,0,0" SelectedItemChanged="TreeView_SelectedItemChanged"/>
-        <Menu HorizontalAlignment="Left" Height="31" VerticalAlignment="Top" Width="1252" Margin="10,10,0,0">
-            <Button/>
-            <Button/>
-        </Menu>
-        <StatusBar HorizontalAlignment="Left" Height="24" Margin="0,665,0,0" VerticalAlignment="Top" Width="1272">
-            <Label x:Name="toolStripStatusLabel1"/>
+        <Vlc:VlcControl xmlns:Vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf" x:Name="MyControl" Margin="518,36,5,79" />
+        <TextBox x:Name="logTextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="180" Width="173" Margin="5,0,0,29" TextWrapping="Wrap" Text="" IsReadOnly="True"/>
+        <TreeView x:Name="channelsTree" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="173" Margin="5,36,0,215" SelectedItemChanged="TreeView_SelectedItemChanged"/>
+        <Grid x:Name="Menu" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="31" Background="#FFBBBBBB">
+            <TextBox x:Name="pathToDir" Text="Укажите путь" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3,3,0,0" Width="203" Height="25" KeyDown="pathToDir_KeyDown" FontSize="16"/>
+            <Button x:Name="downloadButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="209,3,0,0" Content="Скачать из буфера" Width="150" Height="25" FontSize="16" Click="downloadButton_Click"/>
+            <CheckBox x:Name="repeat" Content="Повтор" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="500,8,30,0" FontSize="16" Checked="repeat_Checked" Unchecked="repeat_Unchecked"/>
+            <CheckBox x:Name="autoplay" Content="Автовоспроизведение" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="362,8,120,0" FontSize="16" Checked="autoplay_Checked" Unchecked="autoplay_Unchecked"/>
+        </Grid>
+        <StatusBar HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="24" Margin="0,0,0,0" Background="#FF35ACFF" Foreground="White">
+            <Label x:Name="toolStripStatusLabel1" Padding="0,0,0,0" Foreground="White"/>
         </StatusBar>
-        <ListView x:Name="previewList" HorizontalAlignment="Left" Height="600" VerticalAlignment="Top" Width="330" Margin="183,60,0,0" SelectionChanged="previewList_SelectionChanged" MouseDoubleClick="previewList_MouseDoubleClick" >
+        <ListView x:Name="previewList" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="330" Margin="183,36,0,29" SelectionChanged="previewList_SelectionChanged" MouseDoubleClick="previewList_MouseDoubleClick" >
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid HorizontalAlignment="Center" VerticalAlignment="Top" Columns="3"/>
@@ -25,13 +27,19 @@
             </ItemsControl.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Width="95" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#FFFFE800">
-                        <Image Source="{Binding ImageData}" Width="95" Height="50" HorizontalAlignment="Stretch" VerticalAlignment="Top" OpacityMask="Red" />
-                        <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Background="#FFA2FF00" />
+                    <StackPanel Width="90" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <Image Source="{Binding ImageData}" Width="95" Height="50" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+                        <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Button Content="Пауза/Продолжить" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="196" Height="43" Margin="518,0,0,29" Click="Button_Click" FontSize="20"/>
+        <Slider x:Name="Volume" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="136" Margin="0,0,15,35" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="100" Value="50">
+            <Slider.LayoutTransform>
+                <ScaleTransform ScaleX="1.5" ScaleY="1.7"></ScaleTransform>
+            </Slider.LayoutTransform>
+        </Slider>
 
 
     </Grid>
